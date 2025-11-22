@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const tenantMiddleware = require('./middleware/tenant');
@@ -10,62 +11,66 @@ const tenantRoutes = require('./routes/tenantRoutes');
 const applyRoutes = require('./routes/applyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
-//const dailyProductRoutes = require('./routes/dailyProductRoutes');
-// in backend/src/server.js (or where routes are applied) add:
 const customerRoutes = require('./routes/customerRoutes');
 const productRoutes = require('./routes/products');
 const productRoutes1 = require('./routes/productRoutes');
 const customerProducts = require('./routes/customerProducts');
-// exposes admin endpoints under /api/admin/...
 const profileRoutes = require('./routes/profileRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-
-
-
+const debugRoutes = require('./routes/debugRoutes');
 
 const app = express();
 app.use(cors());
 
-
-// tenant middleware: sets req.tenant if subdomain found or header x-tenant-slug provided
+// Body limits
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+// tenant middleware
 app.use(tenantMiddleware);
 
+// API ROUTES
 app.use('/api/users', userRoutes);
 app.use('/api/recs', recRoutes);
 app.use('/api/tenant', tenantRoutes);
-app.use('/api', applyRoutes);      // exposes /api/tenant/list and /api/farmers/apply
+app.use('/api', applyRoutes);
 app.use('/api', adminRoutes);
 app.use('/api', authRoutes);
-//app.use('/api', dailyProductRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/customer', customerProducts);
 app.use('/api/products1', productRoutes1);
-const debugRoutes = require('./routes/debugRoutes');
 app.use('/api', debugRoutes);
 app.use('/api', profileRoutes);
-app.use('/api/orders', orderRoutes); // or app.use('/api', orderRoutes) and keep routes inside file unchanged
+app.use('/api/orders', orderRoutes);
 
+// -------------------------------------------
+// 🚀 Serve Vite Frontend Build
+// -------------------------------------------
+const frontendPath = path.join(__dirname, './frontend/dist');
+app.use(express.static(frontendPath));
 
+// For any non-API route → send index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+// -------------------------------------------
+// DATABASE CONNECTION
+// -------------------------------------------
 (async function connectDb() {
   try {
-    const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/organoz';
-    // connect and wait
+    const uri = process.env.MONGO_URI ;
     await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    // once connected, mongoose.connection.db is defined — print real DB name + host
     const db = mongoose.connection.db;
     console.log('SERVER MONGO_URI:', uri);
     console.log('SERVER CONNECTED DB NAME:', db ? db.databaseName : '(db not ready)');
     console.log('SERVER DB HOST:', mongoose.connection.host || '(unknown)');
 
-    // If you want, also print collection names for quick debug
     try {
       const cols = await db.listCollections().toArray();
       console.log('Collections present:', cols.map(c => c.name).join(', '));
@@ -78,15 +83,14 @@ app.use('/api/orders', orderRoutes); // or app.use('/api', orderRoutes) and keep
   }
 })();
 
-
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
-    console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB');
 });
 
+// -------------------------------------------
+// START SERVER
+// -------------------------------------------
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, ()=> console.log(`Server running on ${PORT}`));
-console.log("SERVER MONGO_URI:", process.env.MONGO_URI);
-console.log("SERVER CONNECTED DB NAME:", mongoose.connection.name);
-console.log("SERVER DB HOST:", mongoose.connection.host);
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));

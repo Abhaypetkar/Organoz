@@ -41,7 +41,7 @@ export default function App() {
       const isFarmerPath = skipPrefixes.some((pref) => pathname.startsWith(pref))
       const isCustomerPath = pathname.startsWith("/customer")
       if (!isFarmerPath && !isCustomerPath) {
-        navigate("/customer/login", { replace: true })
+        navigate("/", { replace: true })
       }
     } catch {}
   }

@@ -24,8 +24,7 @@ log.txt
 debug.log
 
 # Build outputs
-dist/
-build/
+
 .tmp/
 .temp/
 .cache/
@@ -46,8 +45,7 @@ Thumbs.db
 # ------------------------------------
 backend/node_modules/
 backend/uploads/
-backend/.env
-backend/dist/
+
 backend/logs/
 
 # Temporary uploads (Multer, Cloudinary cache, etc.)
@@ -64,7 +62,7 @@ dump/
 frontend/node_modules/
 
 
-frontend/dist/
+
 frontend/.cache/
 
 # Pictory, images, or generated temp files
