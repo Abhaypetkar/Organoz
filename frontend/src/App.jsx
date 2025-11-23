@@ -195,7 +195,7 @@ export default function App() {
             </p>
             <div className="flex flex-wrap gap-3 items-center pt-4">
               <button
-                onClick={() => navigate("/customer/login")}
+                onClick={() => navigate("/customer/register")}
                 className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#8BCF58] to-[#6BA03E] text-white font-semibold shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
               >
                 Shop Fresh Now
@@ -472,7 +472,7 @@ export default function App() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={() => navigate("/customer/login")}
+              onClick={() => navigate("/customer/register")}
               className="px-8 py-3 rounded-lg bg-white text-[#4A7856] font-bold shadow-lg hover:shadow-xl hover:scale-105 transition duration-300"
             >
               Start Shopping Now
